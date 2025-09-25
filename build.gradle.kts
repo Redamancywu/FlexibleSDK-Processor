@@ -49,8 +49,8 @@ dependencies {
 
 // Gradle插件配置 - 支持通过JitPack使用
 gradlePlugin {
-    website.set("https://github.com/Redamancywu/FlexibleSDK-Processor-Standalone")
-    vcsUrl.set("https://github.com/Redamancywu/FlexibleSDK-Processor-Standalone")
+    website.set("https://github.com/Redamancywu/FlexibleSDK-Processor")
+    vcsUrl.set("https://github.com/Redamancywu/FlexibleSDK-Processor")
     plugins {
         create("flexibleSdkProcessor") {
             id = "com.flexiblesdk.processor"
@@ -69,7 +69,7 @@ publishing {
             pom {
                 name.set("FlexibleSDK Processor")
                 description.set("A flexible SDK processor for Kotlin annotation processing and code generation")
-                url.set("https://github.com/Redamancywu/FlexibleSDK-Processor-Standalone")
+                url.set("https://github.com/Redamancywu/FlexibleSDK-Processor")
                 
                 licenses {
                     license {
@@ -87,9 +87,9 @@ publishing {
                 }
                 
                 scm {
-                    connection.set("scm:git:git://github.com/Redamancywu/FlexibleSDK-Processor-Standalone.git")
-                    developerConnection.set("scm:git:ssh://github.com:Redamancywu/FlexibleSDK-Processor-Standalone.git")
-                    url.set("https://github.com/Redamancywu/FlexibleSDK-Processor-Standalone/tree/main")
+                    connection.set("scm:git:git://github.com/Redamancywu/FlexibleSDK-Processor.git")
+                    developerConnection.set("scm:git:ssh://github.com:Redamancywu/FlexibleSDK-Processor.git")
+                    url.set("https://github.com/Redamancywu/FlexibleSDK-Processor/tree/main")
                 }
             }
         }
