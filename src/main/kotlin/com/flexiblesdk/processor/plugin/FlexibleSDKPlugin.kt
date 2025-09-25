@@ -21,7 +21,8 @@ class FlexibleSDKPlugin : Plugin<Project> {
     companion object {
         const val EXTENSION_NAME = "flexibleSDK"
         const val KSP_PLUGIN_ID = "com.google.devtools.ksp"
-        const val PROCESSOR_ARTIFACT = "com.flexiblesdk:processor"
+        const val PROCESSOR_GROUP_ID = "com.github.Redamancywu"
+        const val PROCESSOR_ARTIFACT_ID = "FlexibleSDK-Processor-Standalone"
     }
     
     override fun apply(project: Project) {
@@ -131,11 +132,14 @@ class FlexibleSDKPlugin : Plugin<Project> {
     
     private fun configureDependencies(project: Project) {
         project.dependencies {
+            val processorVersion = getProcessorVersion(project)
+            val processorArtifact = "$PROCESSOR_GROUP_ID:$PROCESSOR_ARTIFACT_ID:$processorVersion"
+            
             // 自动添加处理器依赖
-            add("ksp", "$PROCESSOR_ARTIFACT:${getProcessorVersion()}")
+            add("ksp", processorArtifact)
             
             // 添加注解依赖（编译时）
-            add("compileOnly", "$PROCESSOR_ARTIFACT:${getProcessorVersion()}")
+            add("compileOnly", processorArtifact)
         }
     }
     
@@ -186,9 +190,20 @@ class FlexibleSDKPlugin : Plugin<Project> {
         project.logger.lifecycle("================================")
     }
     
-    private fun getProcessorVersion(): String {
-        // 这里应该从某个地方获取处理器版本
-        // 可以从 gradle.properties 或其他配置文件读取
+    private fun getProcessorVersion(project: Project): String {
+        // 尝试从项目属性获取版本
+        project.findProperty("flexibleSDK.processorVersion")?.toString()?.let { return it }
+        
+        // 尝试从gradle.properties获取版本
+        project.findProperty("flexibleSDKProcessorVersion")?.toString()?.let { return it }
+        
+        // 尝试从项目版本获取（如果是同一个项目）
+        if (project.version != "unspecified") {
+            return project.version.toString()
+        }
+        
+        // 默认版本（建议在实际使用中配置具体版本）
+        project.logger.warn("FlexibleSDK: 未找到处理器版本配置，使用默认版本。建议在gradle.properties中设置flexibleSDKProcessorVersion属性。")
         return "1.0.0"
     }
 }
