@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FlexibleSDK Android Example</string>
+    
+    <!-- Main Activity -->
+    <string name="add_new_user">Add New User</string>
+    <string name="name_hint">Name</string>
+    <string name="email_hint">Email</string>
+    <string name="add_user">Add User</string>
+    <string name="search_users">Search Users</string>
+    <string name="search_query_hint">Search query</string>
+    <string name="search">Search</string>
+    <string name="clear">Clear</string>
+    <string name="refresh">Refresh</string>
+    <string name="delete">Delete</string>
+    
+    <!-- Status Messages -->
+    <string name="total_users">Total Users: %d</string>
+    <string name="database_count">Database Count: %d</string>
+    <string name="active">Active</string>
+    <string name="inactive">Inactive</string>
+    <string name="created">Created: %s</string>
+    
+    <!-- Error Messages -->
+    <string name="service_not_available">UserService not available</string>
+    <string name="enter_name_email">Please enter name and email</string>
+    <string name="failed_delete_user">Failed to delete user</string>
+    
+    <!-- User Details -->
+    <string name="user_details_format">ID: %1$s\nName: %2$s\nEmail: %3$s\nCreated: %4$s\nActive: %5$s</string>
+</resources>

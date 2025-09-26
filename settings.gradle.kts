@@ -15,3 +15,10 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
+// Include example projects as subprojects
+include(":examples:basic-usage")
+include(":examples:modular-architecture")
+include(":example-project")
+// Note: spring-integration requires Java 17 and is excluded from main build
+// Note: android-project requires Android SDK and is excluded from main build

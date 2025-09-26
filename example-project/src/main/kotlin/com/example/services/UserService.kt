@@ -1,6 +1,6 @@
 package com.example.services
 
-import com.flexiblesdk.processor.annotations.ServiceProvider
+import com.flexiblesdk.processor.annotation.ServiceProvider
 
 /**
  * 用户服务接口
@@ -16,7 +16,7 @@ interface UserService {
  * 用户服务实现
  */
 @ServiceProvider(
-    interfaceClass = UserService::class,
+    interfaces = [UserService::class],
     priority = 1,
     module = "user"
 )

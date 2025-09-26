@@ -186,6 +186,7 @@ class ServiceRegistryCodeGenerator(
     
     // 延迟生成的函数
     private val getServiceFunctionSpec by lazy { generateGetServiceFunction() }
+    private val getServiceByClassFunctionSpec by lazy { generateGetServiceByClassFunction() }
     private val getModuleFunctionSpec by lazy { generateGetModuleFunction() }
     private val getServicesByInterfaceFunctionSpec by lazy { generateGetServicesByInterfaceFunction() }
     private val getServicesByModuleFunctionSpec by lazy { generateGetServicesByModuleFunction() }
@@ -457,11 +458,21 @@ class ServiceRegistryCodeGenerator(
             serviceInfoClassName
         )
         
-        val modulesMapType = getCachedParameterizedType(
-            Map::class.asClassName(),
-            stringClassName,
-            moduleInfoClassName
-        )
+        // 只有在有模块时才定义 modulesMapType
+        val modulesMapType = if (serviceModules.isNotEmpty()) {
+            getCachedParameterizedType(
+                Map::class.asClassName(),
+                stringClassName,
+                moduleInfoClassName
+            )
+        } else {
+            // 使用 Any 作为占位符类型，实际上会用 emptyMap()
+            getCachedParameterizedType(
+                Map::class.asClassName(),
+                stringClassName,
+                Any::class.asClassName()
+            )
+        }
         
         val builder = TypeSpec.objectBuilder(className)
             .apply {
@@ -485,6 +496,7 @@ class ServiceRegistryCodeGenerator(
                     .build()
             )
             .addFunction(getServiceFunctionSpec)
+            .addFunction(getServiceByClassFunctionSpec)
             .addFunction(getServicesByInterfaceFunctionSpec)
             .addFunction(getServicesByModuleFunctionSpec)
             .addFunction(getAllServicesFunctionSpec)
@@ -507,9 +519,14 @@ class ServiceRegistryCodeGenerator(
             .addFunction(getModuleFunctionSpec)
             .addFunction(getAllModulesFunctionSpec)
         } else {
-            // 如果没有模块，提供空的 modules 属性
+            // 如果没有模块，提供空的 modules 属性，使用正确的类型
+            val emptyModulesMapType = getCachedParameterizedType(
+                Map::class.asClassName(),
+                stringClassName,
+                stringClassName  // 使用 String 作为占位符，因为 emptyMap() 可以转换为任何类型
+            )
             builder.addProperty(
-                PropertySpec.builder("modules", modulesMapType)
+                PropertySpec.builder("modules", emptyModulesMapType)
                     .initializer("emptyMap()")
                     .build()
             )
@@ -683,6 +700,37 @@ class ServiceRegistryCodeGenerator(
                 .also { LoggerUtils.logDebug("getService 函数生成完成") }
         } catch (e: Exception) {
             throw CodeGenerationException("生成 getService 函数时失败: ${e.message}", e)
+        }
+    }
+
+    private fun generateGetServiceByClassFunction(): FunSpec {
+        return try {
+            LoggerUtils.logDebug("生成 getService(KClass) 函数")
+            
+            val kClassType = ClassName("kotlin.reflect", "KClass")
+                .parameterizedBy(STAR)
+            
+            FunSpec.builder("getService")
+                .addTypeVariable(TypeVariableName("T"))
+                .addParameter("serviceClass", kClassType)
+                .returns(TypeVariableName("T").copy(nullable = true))
+                .addStatement("val serviceInfo = getServicesByInterface(serviceClass.qualifiedName ?: return null).firstOrNull() ?: return null")
+                .addStatement("return try {")
+                .addStatement("    val clazz = Class.forName(serviceInfo.className)")
+                .addStatement("    val constructor = clazz.getDeclaredConstructor()")
+                .addStatement("    constructor.newInstance() as? T")
+                .addStatement("} catch (e: Exception) {")
+                .addStatement("    null")
+                .addStatement("}")
+                .apply {
+                    if (generateDocumentation) {
+                        addKdoc("根据服务类获取服务实例")
+                    }
+                }
+                .build()
+                .also { LoggerUtils.logDebug("getService(KClass) 函数生成完成") }
+        } catch (e: Exception) {
+            throw CodeGenerationException("生成 getService(KClass) 函数时失败: ${e.message}", e)
         }
     }
     

@@ -1,8 +1,6 @@
 package com.flexiblesdk.processor.utils
 
 import com.google.devtools.ksp.processing.KSPLogger
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 
 /**
  * 日志工具类
@@ -39,9 +37,9 @@ object LoggerUtils {
         }
     
     /**
-     * Gradle Logger 实例
+     * Gradle Logger 实例（延迟初始化，可能为null）
      */
-    private val gradleLogger: Logger = Logging.getLogger(LoggerUtils::class.java)
+    private var gradleLogger: Any? = null
     
     /**
      * KSP Logger 实例（可选）
@@ -53,6 +51,63 @@ object LoggerUtils {
      */
     fun setKSPLogger(logger: KSPLogger) {
         kspLogger = logger
+    }
+    
+    /**
+     * 安全地获取Gradle Logger，如果不可用则返回null
+     */
+    private fun getGradleLogger(): Any? {
+        if (gradleLogger == null) {
+            try {
+                val loggingClass = Class.forName("org.gradle.api.logging.Logging")
+                val getLoggerMethod = loggingClass.getMethod("getLogger", Class::class.java)
+                gradleLogger = getLoggerMethod.invoke(null, LoggerUtils::class.java)
+            } catch (e: Exception) {
+                // Gradle API不可用，这在KSP环境中是正常的
+                gradleLogger = "unavailable"
+            }
+        }
+        return if (gradleLogger == "unavailable") null else gradleLogger
+    }
+    
+    /**
+     * 安全地调用Gradle Logger的方法
+     */
+    private fun callGradleLogger(methodName: String, message: String, throwable: Throwable? = null) {
+        try {
+            val logger = getGradleLogger() ?: return
+            val loggerClass = logger.javaClass
+            if (throwable != null) {
+                val method = loggerClass.getMethod(methodName, String::class.java, Throwable::class.java)
+                method.invoke(logger, message, throwable)
+            } else {
+                val method = loggerClass.getMethod(methodName, String::class.java)
+                method.invoke(logger, message)
+            }
+        } catch (e: Exception) {
+            // 如果Gradle Logger调用失败，回退到标准输出
+            fallbackToStandardOutput(methodName, message, throwable)
+        }
+    }
+    
+    /**
+     * 回退到标准输出
+     */
+    private fun fallbackToStandardOutput(level: String, message: String, throwable: Throwable? = null) {
+        when (level.lowercase()) {
+            "error" -> {
+                System.err.println(message)
+                throwable?.printStackTrace(System.err)
+            }
+            "warn" -> {
+                System.err.println(message)
+                throwable?.printStackTrace(System.err)
+            }
+            else -> {
+                println(message)
+                throwable?.printStackTrace()
+            }
+        }
     }
     
     /**
@@ -80,7 +135,11 @@ object LoggerUtils {
         if (!shouldLog(LogLevel.DEBUG)) return
         
         val formattedMessage = formatMessage("DEBUG", message, tag)
-        kspLogger?.info(formattedMessage) ?: gradleLogger.debug(formattedMessage)
+        if (kspLogger != null) {
+            kspLogger!!.info(formattedMessage)
+        } else {
+            callGradleLogger("debug", formattedMessage)
+        }
     }
     
     /**
@@ -90,7 +149,11 @@ object LoggerUtils {
         if (!shouldLog(LogLevel.INFO)) return
         
         val formattedMessage = formatMessage("INFO", message, tag)
-        kspLogger?.info(formattedMessage) ?: gradleLogger.info(formattedMessage)
+        if (kspLogger != null) {
+            kspLogger!!.info(formattedMessage)
+        } else {
+            callGradleLogger("info", formattedMessage)
+        }
     }
     
     /**
@@ -100,11 +163,14 @@ object LoggerUtils {
         if (!shouldLog(LogLevel.WARN)) return
         
         val formattedMessage = formatMessage("WARN", message, tag)
-        if (throwable != null) {
-            kspLogger?.warn("$formattedMessage\n${throwable.stackTraceToString()}") 
-                ?: gradleLogger.warn(formattedMessage, throwable)
+        if (kspLogger != null) {
+            if (throwable != null) {
+                kspLogger!!.warn("$formattedMessage\n${throwable.stackTraceToString()}")
+            } else {
+                kspLogger!!.warn(formattedMessage)
+            }
         } else {
-            kspLogger?.warn(formattedMessage) ?: gradleLogger.warn(formattedMessage)
+            callGradleLogger("warn", formattedMessage, throwable)
         }
     }
     
@@ -115,11 +181,14 @@ object LoggerUtils {
         if (!shouldLog(LogLevel.ERROR)) return
         
         val formattedMessage = formatMessage("ERROR", message, tag)
-        if (throwable != null) {
-            kspLogger?.error("$formattedMessage\n${throwable.stackTraceToString()}") 
-                ?: gradleLogger.error(formattedMessage, throwable)
+        if (kspLogger != null) {
+            if (throwable != null) {
+                kspLogger!!.error("$formattedMessage\n${throwable.stackTraceToString()}")
+            } else {
+                kspLogger!!.error(formattedMessage)
+            }
         } else {
-            kspLogger?.error(formattedMessage) ?: gradleLogger.error(formattedMessage)
+            callGradleLogger("error", formattedMessage, throwable)
         }
     }
     

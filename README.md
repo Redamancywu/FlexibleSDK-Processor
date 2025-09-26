@@ -106,7 +106,7 @@ import com.flexiblesdk.processor.annotation.ServiceProvider
 @ServiceProvider(
     interfaces = [UserService::class],
     priority = 100,
-    dependencies = ["DatabaseService"],
+    dependencies = [DatabaseService::class],
     singleton = true
 )
 class UserServiceImpl(
@@ -354,12 +354,12 @@ flexibleSDKProcessorVersion=1.0.0
 
 ```kotlin
 @ServiceProvider(
-    interfaces = [UserService::class],  // Required: Interfaces this service implements
-    priority = 100,                     // Optional: Service priority (higher = more priority)
-    dependencies = ["DatabaseService"], // Optional: Service dependencies
-    singleton = true,                   // Optional: Whether service is singleton
-    lazy = false,                       // Optional: Whether service is lazily initialized
-    tags = ["user", "management"]       // Optional: Service tags for categorization
+    interfaces = [UserService::class],     // Required: Interfaces this service implements
+    priority = 100,                        // Optional: Service priority (lower number = higher priority)
+    dependencies = [DatabaseService::class], // Optional: Service dependencies
+    singleton = true,                      // Optional: Whether this is a singleton service
+    lazy = false,                          // Optional: Whether to initialize lazily
+    module = "userModule"                  // Optional: Module name this service belongs to
 )
 ```
 
@@ -370,9 +370,9 @@ flexibleSDKProcessorVersion=1.0.0
     name = "UserModule",                // Required: Module name
     version = "1.0.0",                  // Optional: Module version
     description = "User services",      // Optional: Module description
-    priority = 50,                      // Optional: Module priority
+    priority = 50,                      // Optional: Module priority (lower number = higher priority)
     dependencies = ["CoreModule"],      // Optional: Module dependencies
-    tags = ["user", "core"]            // Optional: Module tags
+    autoLoad = true                     // Optional: Whether to auto-load this module
 )
 ```
 
@@ -469,10 +469,10 @@ flexibleSDK {
 
 Check out the [examples directory](examples/) for complete sample projects:
 
-- [Basic Usage](examples/basic-usage/) - Simple service registration
-- [Modular Architecture](examples/modular-architecture/) - Complex multi-module setup
-- [Spring Integration](examples/spring-integration/) - Integration with Spring Framework
-- [Android Project](examples/android-project/) - Android application example
+- [Basic Usage](examples/basic-usage/) - Simple service registration and dependency injection
+- [Modular Architecture](examples/modular-architecture/) - Complex multi-module setup with service organization
+- [Spring Integration](examples/spring-integration/) - Integration with Spring Framework and Boot
+- [Android Project](examples/android-project/) - Complete Android application with Room database and MVVM pattern
 
 ## 🤝 Contributing
 

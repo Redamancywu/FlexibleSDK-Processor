@@ -106,7 +106,7 @@ import com.flexiblesdk.processor.annotation.ServiceProvider
 @ServiceProvider(
     interfaces = [UserService::class],
     priority = 100,
-    dependencies = ["DatabaseService"],
+    dependencies = [DatabaseService::class],
     singleton = true
 )
 class UserServiceImpl(
@@ -354,12 +354,12 @@ flexibleSDKProcessorVersion=1.0.0
 
 ```kotlin
 @ServiceProvider(
-    interfaces = [UserService::class],  // 必需：此服务实现的接口
-    priority = 100,                     // 可选：服务优先级（数值越高优先级越高）
-    dependencies = ["DatabaseService"], // 可选：服务依赖
-    singleton = true,                   // 可选：是否为单例服务
-    lazy = false,                       // 可选：是否延迟初始化
-    tags = ["user", "management"]       // 可选：服务标签，用于分类
+    interfaces = [UserService::class],     // 必需：此服务实现的接口
+    priority = 100,                        // 可选：服务优先级（数值越小优先级越高）
+    dependencies = [DatabaseService::class], // 可选：服务依赖
+    singleton = true,                      // 可选：是否为单例服务
+    lazy = false,                          // 可选：是否延迟初始化
+    module = "userModule"                  // 可选：所属模块名称
 )
 ```
 
@@ -370,9 +370,9 @@ flexibleSDKProcessorVersion=1.0.0
     name = "UserModule",                // 必需：模块名称
     version = "1.0.0",                  // 可选：模块版本
     description = "用户服务",            // 可选：模块描述
-    priority = 50,                      // 可选：模块优先级
+    priority = 50,                      // 可选：模块优先级（数值越小优先级越高）
     dependencies = ["CoreModule"],      // 可选：模块依赖
-    tags = ["user", "core"]            // 可选：模块标签
+    autoLoad = true                     // 可选：是否自动加载
 )
 ```
 
@@ -469,10 +469,10 @@ flexibleSDK {
 
 查看 [examples 目录](examples/) 获取完整的示例项目：
 
-- [基础用法](examples/basic-usage/) - 简单的服务注册
-- [模块化架构](examples/modular-architecture/) - 复杂的多模块设置
-- [Spring 集成](examples/spring-integration/) - 与 Spring 框架集成
-- [Android 项目](examples/android-project/) - Android 应用示例
+- [基础用法](examples/basic-usage/) - 简单的服务注册和依赖注入
+- [模块化架构](examples/modular-architecture/) - 复杂的多模块设置和服务组织
+- [Spring 集成](examples/spring-integration/) - 与 Spring 框架和 Boot 集成
+- [Android 项目](examples/android-project/) - 完整的 Android 应用，包含 Room 数据库和 MVVM 模式
 
 ## 🤝 贡献
 
