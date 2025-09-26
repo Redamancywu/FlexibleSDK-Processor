@@ -3,11 +3,11 @@ plugins {
     `java-gradle-plugin`
     `maven-publish`
     // JitPack发布不需要Gradle Plugin Portal
-    // id("com.gradle.plugin-publish") version "1.2.1"
+    id("com.gradle.plugin-publish") version "1.2.1"
 }
 
-group = "com.flexiblesdk"
-version = "0.0.3"
+group = "io.github.Redamancywu"
+version = "1.0.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
@@ -53,7 +53,7 @@ gradlePlugin {
     vcsUrl.set("https://github.com/Redamancywu/FlexibleSDK-Processor")
     plugins {
         create("flexibleSdkProcessor") {
-            id = "com.flexiblesdk.processor"
+            id = "io.github.Redamancywu.processor"
             implementationClass = "com.flexiblesdk.processor.plugin.FlexibleSDKPlugin"
             displayName = "FlexibleSDK Processor"
             description = "A Gradle plugin for processing FlexibleSDK annotations and generating code"

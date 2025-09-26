@@ -21,8 +21,8 @@ class FlexibleSDKPlugin : Plugin<Project> {
     companion object {
         const val EXTENSION_NAME = "flexibleSDK"
         const val KSP_PLUGIN_ID = "com.google.devtools.ksp"
-        const val PROCESSOR_GROUP_ID = "com.github.Redamancywu"
-        const val PROCESSOR_ARTIFACT_ID = "FlexibleSDK-Processor-Standalone"
+        const val PROCESSOR_GROUP_ID = "io.github.Redamancywu"
+        const val PROCESSOR_ARTIFACT_ID = "FlexibleSDK-Processor"
     }
     
     override fun apply(project: Project) {
